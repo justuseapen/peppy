@@ -3,11 +3,14 @@ from mock_data import MOCK_IMAGES, add_uploaded_image, add_tags_to_image, is_dup
 import random
 import os
 from werkzeug.utils import secure_filename
+import logging
 
 app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = 'static/uploads'
 app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16MB max-limit
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif', 'webp'}
+
+logging.basicConfig(level=logging.DEBUG)
 
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
@@ -64,7 +67,11 @@ def upload_image():
             # Save the file temporarily to check for duplicates
             file.save(file_path)
             
-            if is_duplicate_image(file_path):
+            logging.debug(f"Checking for duplicate image: {file_path}")
+            is_duplicate = is_duplicate_image(file_path)
+            logging.debug(f"is_duplicate_image result: {is_duplicate}")
+            
+            if is_duplicate:
                 os.remove(file_path)  # Remove the temporary file
                 return jsonify({'error': 'Duplicate image. This image has already been uploaded.'}), 400
             
@@ -73,6 +80,7 @@ def upload_image():
             new_image = add_uploaded_image(filename, file_path, tags)
             return jsonify(new_image), 201
         except Exception as e:
+            logging.error(f"Error processing uploaded image: {str(e)}")
             if os.path.exists(file_path):
                 os.remove(file_path)  # Remove the temporary file if it exists
             return jsonify({'error': f'An error occurred while processing the image: {str(e)}'}), 500
