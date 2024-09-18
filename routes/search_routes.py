@@ -60,5 +60,7 @@ def trending_gifs() -> jsonify:
         jsonify: A JSON response containing the trending GIFs.
     """
     limit = int(request.args.get("limit", 10))
-    trending = random.sample(MOCK_IMAGES, min(limit, len(MOCK_IMAGES)))
+    shuffled_images = MOCK_IMAGES.copy()
+    random.shuffle(shuffled_images)
+    trending = shuffled_images[:limit]
     return jsonify(trending)
