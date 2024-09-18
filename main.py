@@ -1,5 +1,5 @@
 from flask import Flask, render_template, jsonify, request, url_for
-from mock_data import MOCK_IMAGES, add_uploaded_image
+from mock_data import MOCK_IMAGES, add_uploaded_image, add_tags_to_image
 import random
 import os
 from werkzeug.utils import secure_filename
@@ -22,8 +22,12 @@ def search_images():
     offset = int(request.args.get("offset", 0))
     limit = int(request.args.get("limit", 20))
 
-    # Filter images based on the query (case-insensitive)
-    filtered_images = [image for image in MOCK_IMAGES if query in image["title"].lower()]
+    # Filter images based on the query (case-insensitive) and tags
+    filtered_images = [
+        image for image in MOCK_IMAGES
+        if query in image["title"].lower() or
+        any(query in tag.lower() for tag in image["tags"])
+    ]
 
     # Paginate the results
     paginated_images = filtered_images[offset:offset + limit]
@@ -44,9 +48,26 @@ def upload_image():
         file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
         file.save(file_path)
         image_url = url_for('static', filename=f'uploads/{filename}')
-        new_image = add_uploaded_image(filename, image_url)
+        tags = request.form.get('tags', '').split(',')
+        tags = [tag.strip() for tag in tags if tag.strip()]
+        new_image = add_uploaded_image(filename, image_url, tags)
         return jsonify(new_image), 201
     return jsonify({'error': 'Invalid file type'}), 400
+
+@app.route('/api/add_tags', methods=['POST'])
+def add_tags():
+    data = request.json
+    image_id = data.get('image_id')
+    new_tags = data.get('tags', [])
+    
+    if not image_id or not new_tags:
+        return jsonify({'error': 'Image ID and tags are required'}), 400
+
+    updated_image = add_tags_to_image(image_id, new_tags)
+    if updated_image:
+        return jsonify(updated_image), 200
+    else:
+        return jsonify({'error': 'Image not found'}), 404
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000, debug=True)

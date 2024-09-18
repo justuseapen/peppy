@@ -5,14 +5,19 @@ document.addEventListener('DOMContentLoaded', () => {
     const loadingIndicator = document.getElementById('loading');
     const modal = document.getElementById('modal');
     const modalImage = document.getElementById('modal-image');
+    const modalTags = document.getElementById('modal-tags');
+    const addTagInput = document.getElementById('add-tag-input');
+    const addTagButton = document.getElementById('add-tag-button');
     const closeModal = document.getElementById('close-modal');
     const loadMoreButton = document.getElementById('load-more-button');
     const fileUpload = document.getElementById('file-upload');
+    const uploadTags = document.getElementById('upload-tags');
     const uploadStatus = document.getElementById('upload-status');
 
     let currentOffset = 0;
     const limit = 20;
     let currentQuery = '';
+    let currentImageId = '';
 
     const debounce = (func, delay) => {
         let timeoutId;
@@ -60,6 +65,10 @@ document.addEventListener('DOMContentLoaded', () => {
             imageElement.classList.add('image-item');
             imageElement.innerHTML = `
                 <img src="${image.images.fixed_height.url}" alt="${image.title}" class="w-full h-auto rounded-lg shadow-md">
+                <div class="mt-2">
+                    <p class="font-bold">${image.title}</p>
+                    <p class="text-sm text-gray-600">${image.tags.join(', ')}</p>
+                </div>
             `;
             imageElement.addEventListener('click', () => showFullSize(image));
             resultsContainer.appendChild(imageElement);
@@ -68,6 +77,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const showFullSize = (image) => {
         modalImage.src = image.images.original.url;
+        modalTags.innerHTML = `<p class="font-bold">Tags:</p><p>${image.tags.join(', ')}</p>`;
+        currentImageId = image.id;
         modal.classList.remove('hidden');
     };
 
@@ -95,6 +106,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const uploadImage = (file) => {
         const formData = new FormData();
         formData.append('file', file);
+        formData.append('tags', uploadTags.value);
 
         fetch('/api/upload', {
             method: 'POST',
@@ -107,6 +119,7 @@ document.addEventListener('DOMContentLoaded', () => {
             } else {
                 showUploadStatus('Image uploaded successfully!', 'success');
                 displayResults([data]);
+                uploadTags.value = '';
             }
         })
         .catch(error => {
@@ -122,6 +135,36 @@ document.addEventListener('DOMContentLoaded', () => {
         setTimeout(() => {
             uploadStatus.classList.add('hidden');
         }, 3000);
+    };
+
+    const addTags = () => {
+        const newTags = addTagInput.value.split(',').map(tag => tag.trim()).filter(tag => tag !== '');
+        if (newTags.length === 0) return;
+
+        fetch('/api/add_tags', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                image_id: currentImageId,
+                tags: newTags
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.error) {
+                showError(data.error);
+            } else {
+                modalTags.innerHTML = `<p class="font-bold">Tags:</p><p>${data.tags.join(', ')}</p>`;
+                addTagInput.value = '';
+                showUploadStatus('Tags added successfully!', 'success');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showError('An error occurred while adding tags. Please try again.');
+        });
     };
 
     searchInput.addEventListener('input', (e) => performSearch(e.target.value.trim()));
@@ -146,4 +189,6 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
     });
+
+    addTagButton.addEventListener('click', addTags);
 });

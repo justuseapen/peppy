@@ -12,15 +12,18 @@
         <h1 class="text-3xl font-bold text-center">Peppy</h1>
     </header>
     <main class="container mx-auto px-4 py-8">
-        <div class="mb-8 flex justify-between items-center">
-            <input type="text" id="search-input" placeholder="Search for images..." class="w-3/4 p-2 rounded-lg border-2 border-purple-300 focus:outline-none focus:border-purple-500">
-            <label for="file-upload" class="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition-colors cursor-pointer">
-                Upload Image
-                <input type="file" id="file-upload" accept="image/*" class="hidden">
-            </label>
+        <div class="mb-8 flex flex-col md:flex-row justify-between items-center">
+            <input type="text" id="search-input" placeholder="Search for images or tags..." class="w-full md:w-3/4 p-2 rounded-lg border-2 border-purple-300 focus:outline-none focus:border-purple-500 mb-4 md:mb-0">
+            <div class="w-full md:w-1/4 flex flex-col items-center">
+                <label for="file-upload" class="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition-colors cursor-pointer mb-2">
+                    Upload Image
+                    <input type="file" id="file-upload" accept="image/*" class="hidden">
+                </label>
+                <input type="text" id="upload-tags" placeholder="Add tags (comma-separated)" class="w-full p-2 rounded-lg border-2 border-purple-300 focus:outline-none focus:border-purple-500">
+            </div>
         </div>
         <div id="upload-status" class="text-center mb-4 hidden"></div>
-        <div id="results" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4"></div>
+        <div id="results" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4"></div>
         <div id="loading" class="text-center mt-4 hidden">
             <div class="inline-block animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-purple-500"></div>
         </div>
@@ -32,6 +35,9 @@
     <div id="modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden">
         <div class="bg-white p-4 rounded-lg max-w-3xl max-h-full overflow-auto">
             <img id="modal-image" src="" alt="Full-size Image" class="max-w-full max-h-[80vh]">
+            <div id="modal-tags" class="mt-4"></div>
+            <input type="text" id="add-tag-input" placeholder="Add new tags (comma-separated)" class="w-full p-2 mt-2 rounded-lg border-2 border-purple-300 focus:outline-none focus:border-purple-500">
+            <button id="add-tag-button" class="mt-2 bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-colors">Add Tags</button>
             <button id="close-modal" class="mt-4 bg-purple-500 text-white px-4 py-2 rounded-lg hover:bg-purple-600 transition-colors">Close</button>
         </div>
     </div>
