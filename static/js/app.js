@@ -14,6 +14,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const fileUpload = document.getElementById('file-upload');
     const uploadStatus = document.getElementById('upload-status');
     const searchResultsSection = document.getElementById('search-results-section');
+    const trendingSection = document.getElementById('trending-section');
 
     let currentOffset = 0;
     const limit = 20;
@@ -34,10 +35,12 @@ document.addEventListener('DOMContentLoaded', () => {
         resultsContainer.innerHTML = '';
         if (query === '') {
             searchResultsSection.classList.add('hidden');
+            trendingSection.classList.remove('hidden');
             return;
         }
 
         searchResultsSection.classList.remove('hidden');
+        trendingSection.classList.add('hidden');
         showLoading();
         fetchImages(query);
     }, 300);
@@ -49,6 +52,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 hideLoading();
                 displayResults(data, resultsContainer);
                 updateLoadMoreButton(data.length === limit);
+                trendingSection.classList.add('hidden');
             })
             .catch(error => {
                 console.error('Error:', error);
