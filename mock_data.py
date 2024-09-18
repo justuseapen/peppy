@@ -1,4 +1,6 @@
 import random
+import imagehash
+from PIL import Image
 
 MOCK_IMAGES = [
     {
@@ -68,18 +70,22 @@ MOCK_IMAGES = [
     }
 ]
 
-def add_uploaded_image(title, image_url, tags):
+IMAGE_HASHES = []
+
+def add_uploaded_image(title, file_path, tags):
     new_id = str(len(MOCK_IMAGES) + 1)
+    new_hash = imagehash.average_hash(Image.open(file_path))
+    IMAGE_HASHES.append(new_hash)
     new_image = {
         "id": new_id,
         "title": title,
         "tags": tags,
         "images": {
             "fixed_height": {
-                "url": image_url
+                "url": file_path
             },
             "original": {
-                "url": image_url
+                "url": file_path
             }
         }
     }
@@ -93,5 +99,6 @@ def add_tags_to_image(image_id, new_tags):
             return image
     return None
 
-def is_duplicate_image(image_url):
-    return any(image['images']['original']['url'] == image_url for image in MOCK_IMAGES)
+def is_duplicate_image(file_path):
+    new_hash = imagehash.average_hash(Image.open(file_path))
+    return any(abs(new_hash - existing_hash) <= 5 for existing_hash in IMAGE_HASHES)

@@ -59,15 +59,17 @@ def upload_image():
         if not os.path.exists(app.config['UPLOAD_FOLDER']):
             os.makedirs(app.config['UPLOAD_FOLDER'])
         file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-        image_url = url_for('static', filename=f'uploads/{filename}')
         
-        if is_duplicate_image(image_url):
+        # Save the file temporarily to check for duplicates
+        file.save(file_path)
+        
+        if is_duplicate_image(file_path):
+            os.remove(file_path)  # Remove the temporary file
             return jsonify({'error': 'Duplicate image. This image has already been uploaded.'}), 400
         
-        file.save(file_path)
         tags = request.form.get('tags', '').split(',')
         tags = [tag.strip() for tag in tags if tag.strip()]
-        new_image = add_uploaded_image(filename, image_url, tags)
+        new_image = add_uploaded_image(filename, file_path, tags)
         return jsonify(new_image), 201
     return jsonify({'error': 'Invalid file type'}), 400
 
