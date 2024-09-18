@@ -12,7 +12,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const addTagInput = document.getElementById('add-tag-input');
     const addTagButton = document.getElementById('add-tag-button');
     const closeModal = document.getElementById('close-modal');
-    const loadMoreButton = document.getElementById('load-more-button');
     const fileUpload = document.getElementById('file-upload');
     const uploadStatus = document.getElementById('upload-status');
     const searchResultsSection = document.getElementById('search-results-section');
@@ -29,6 +28,8 @@ document.addEventListener('DOMContentLoaded', () => {
     let currentQuery = '';
     let currentImageId = '';
     let currentView = 'trending';
+    let isLoading = false;
+    let hasMoreResults = true;
 
     const debounce = (func, delay) => {
         let timeoutId;
@@ -42,6 +43,7 @@ document.addEventListener('DOMContentLoaded', () => {
         currentQuery = query;
         currentOffset = 0;
         resultsContainer.innerHTML = '';
+        hasMoreResults = true;
         if (query === '') {
             searchResultsSection.classList.add('hidden');
             showCurrentView();
@@ -57,17 +59,22 @@ document.addEventListener('DOMContentLoaded', () => {
     }, 300);
 
     const fetchImages = (query) => {
+        if (!hasMoreResults || isLoading) return;
+        isLoading = true;
         fetch(`/api/search?q=${encodeURIComponent(query)}&offset=${currentOffset}&limit=${limit}`)
             .then(response => response.json())
             .then(data => {
                 hideLoading();
                 displayResults(data, resultsContainer);
-                updateLoadMoreButton(data.length === limit);
+                currentOffset += data.length;
+                hasMoreResults = data.length === limit;
+                isLoading = false;
             })
             .catch(error => {
                 console.error('Error:', error);
                 showError('An error occurred while fetching images. Please try again.');
                 hideLoading();
+                isLoading = false;
             });
     };
 
@@ -88,21 +95,24 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     const fetchCategoryGifs = (category) => {
+        if (!hasMoreResults || isLoading) return;
+        isLoading = true;
         showLoading();
         currentCategory = category;
-        currentOffset = 0;
-        categoryResultsContainer.innerHTML = '';
         fetch(`/api/category/${encodeURIComponent(category)}?offset=${currentOffset}&limit=${limit}`)
             .then(response => response.json())
             .then(data => {
                 hideLoading();
                 displayResults(data, categoryResultsContainer);
-                updateLoadMoreButton(data.length === limit);
+                currentOffset += data.length;
+                hasMoreResults = data.length === limit;
+                isLoading = false;
             })
             .catch(error => {
                 console.error('Error:', error);
                 showError('An error occurred while fetching category GIFs. Please try again.');
                 hideLoading();
+                isLoading = false;
             });
     };
 
@@ -173,14 +183,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const hideLoading = () => {
         loadingIndicator.classList.add('hidden');
-    };
-
-    const updateLoadMoreButton = (show) => {
-        if (show) {
-            loadMoreButton.parentElement.classList.remove('hidden');
-        } else {
-            loadMoreButton.parentElement.classList.add('hidden');
-        }
     };
 
     const uploadImage = (file) => {
@@ -261,20 +263,20 @@ document.addEventListener('DOMContentLoaded', () => {
         untaggedSection.classList.remove('hidden');
     };
 
+    const handleScroll = () => {
+        if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight - 100) {
+            if (currentQuery) {
+                fetchImages(currentQuery);
+            } else if (currentCategory) {
+                fetchCategoryGifs(currentCategory);
+            }
+        }
+    };
+
     searchInput.addEventListener('input', (e) => performSearch(e.target.value.trim()));
 
     closeModal.addEventListener('click', () => {
         modal.classList.add('hidden');
-    });
-
-    loadMoreButton.addEventListener('click', () => {
-        currentOffset += limit;
-        showLoading();
-        if (currentQuery) {
-            fetchImages(currentQuery);
-        } else if (currentCategory) {
-            fetchCategoryGifs(currentCategory);
-        }
     });
 
     fileUpload.addEventListener('change', (e) => {
@@ -299,9 +301,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
     categoryButtons.forEach(button => {
         button.addEventListener('click', () => {
+            currentOffset = 0;
+            categoryResultsContainer.innerHTML = '';
+            hasMoreResults = true;
             fetchCategoryGifs(button.textContent);
         });
     });
+
+    window.addEventListener('scroll', debounce(handleScroll, 200));
 
     // Fetch trending GIFs and untagged assets on page load
     fetchTrendingGifs();
