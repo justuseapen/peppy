@@ -7,6 +7,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const modalImage = document.getElementById('modal-image');
     const closeModal = document.getElementById('close-modal');
     const loadMoreButton = document.getElementById('load-more-button');
+    const fileUpload = document.getElementById('file-upload');
+    const uploadStatus = document.getElementById('upload-status');
 
     let currentOffset = 0;
     const limit = 20;
@@ -90,6 +92,38 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
+    const uploadGif = (file) => {
+        const formData = new FormData();
+        formData.append('file', file);
+
+        fetch('/api/upload', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.error) {
+                showUploadStatus(data.error, 'error');
+            } else {
+                showUploadStatus('GIF uploaded successfully!', 'success');
+                displayResults([data]);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showUploadStatus('An error occurred while uploading the GIF.', 'error');
+        });
+    };
+
+    const showUploadStatus = (message, type) => {
+        uploadStatus.textContent = message;
+        uploadStatus.classList.remove('hidden', 'text-green-500', 'text-red-500');
+        uploadStatus.classList.add(type === 'success' ? 'text-green-500' : 'text-red-500');
+        setTimeout(() => {
+            uploadStatus.classList.add('hidden');
+        }, 3000);
+    };
+
     searchInput.addEventListener('input', (e) => performSearch(e.target.value.trim()));
 
     closeModal.addEventListener('click', () => {
@@ -100,5 +134,16 @@ document.addEventListener('DOMContentLoaded', () => {
         currentOffset += limit;
         showLoading();
         fetchGifs(currentQuery);
+    });
+
+    fileUpload.addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            if (file.type === 'image/gif') {
+                uploadGif(file);
+            } else {
+                showUploadStatus('Please upload a GIF file.', 'error');
+            }
+        }
     });
 });
