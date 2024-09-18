@@ -29,10 +29,10 @@ document.addEventListener('DOMContentLoaded', () => {
         if (query === '') return;
 
         showLoading();
-        fetchGifs(query);
+        fetchImages(query);
     }, 300);
 
-    const fetchGifs = (query) => {
+    const fetchImages = (query) => {
         fetch(`/api/search?q=${encodeURIComponent(query)}&offset=${currentOffset}&limit=${limit}`)
             .then(response => response.json())
             .then(data => {
@@ -42,32 +42,32 @@ document.addEventListener('DOMContentLoaded', () => {
             })
             .catch(error => {
                 console.error('Error:', error);
-                showError('An error occurred while fetching GIFs. Please try again.');
+                showError('An error occurred while fetching images. Please try again.');
                 hideLoading();
             });
     };
 
-    const displayResults = (gifs) => {
+    const displayResults = (images) => {
         errorMessage.classList.add('hidden');
 
-        if (gifs.length === 0 && currentOffset === 0) {
-            showError('No GIFs found. Try a different search term.');
+        if (images.length === 0 && currentOffset === 0) {
+            showError('No images found. Try a different search term.');
             return;
         }
 
-        gifs.forEach(gif => {
-            const gifElement = document.createElement('div');
-            gifElement.classList.add('gif-item');
-            gifElement.innerHTML = `
-                <img src="${gif.images.fixed_height.url}" alt="${gif.title}" class="w-full h-auto rounded-lg shadow-md">
+        images.forEach(image => {
+            const imageElement = document.createElement('div');
+            imageElement.classList.add('image-item');
+            imageElement.innerHTML = `
+                <img src="${image.images.fixed_height.url}" alt="${image.title}" class="w-full h-auto rounded-lg shadow-md">
             `;
-            gifElement.addEventListener('click', () => showFullSize(gif));
-            resultsContainer.appendChild(gifElement);
+            imageElement.addEventListener('click', () => showFullSize(image));
+            resultsContainer.appendChild(imageElement);
         });
     };
 
-    const showFullSize = (gif) => {
-        modalImage.src = gif.images.original.url;
+    const showFullSize = (image) => {
+        modalImage.src = image.images.original.url;
         modal.classList.remove('hidden');
     };
 
@@ -92,7 +92,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
-    const uploadGif = (file) => {
+    const uploadImage = (file) => {
         const formData = new FormData();
         formData.append('file', file);
 
@@ -105,13 +105,13 @@ document.addEventListener('DOMContentLoaded', () => {
             if (data.error) {
                 showUploadStatus(data.error, 'error');
             } else {
-                showUploadStatus('GIF uploaded successfully!', 'success');
+                showUploadStatus('Image uploaded successfully!', 'success');
                 displayResults([data]);
             }
         })
         .catch(error => {
             console.error('Error:', error);
-            showUploadStatus('An error occurred while uploading the GIF.', 'error');
+            showUploadStatus('An error occurred while uploading the image.', 'error');
         });
     };
 
@@ -133,16 +133,16 @@ document.addEventListener('DOMContentLoaded', () => {
     loadMoreButton.addEventListener('click', () => {
         currentOffset += limit;
         showLoading();
-        fetchGifs(currentQuery);
+        fetchImages(currentQuery);
     });
 
     fileUpload.addEventListener('change', (e) => {
         const file = e.target.files[0];
         if (file) {
-            if (file.type === 'image/gif') {
-                uploadGif(file);
+            if (['image/png', 'image/jpeg', 'image/gif', 'image/webp'].includes(file.type)) {
+                uploadImage(file);
             } else {
-                showUploadStatus('Please upload a GIF file.', 'error');
+                showUploadStatus('Please upload a valid image file (PNG, JPEG, GIF, or WebP).', 'error');
             }
         }
     });

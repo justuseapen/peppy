@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Peppy - GIF Search</title>
+    <title>Peppy - Image Search</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
 </head>
@@ -13,10 +13,10 @@
     </header>
     <main class="container mx-auto px-4 py-8">
         <div class="mb-8 flex justify-between items-center">
-            <input type="text" id="search-input" placeholder="Search for GIFs..." class="w-3/4 p-2 rounded-lg border-2 border-purple-300 focus:outline-none focus:border-purple-500">
+            <input type="text" id="search-input" placeholder="Search for images..." class="w-3/4 p-2 rounded-lg border-2 border-purple-300 focus:outline-none focus:border-purple-500">
             <label for="file-upload" class="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition-colors cursor-pointer">
-                Upload GIF
-                <input type="file" id="file-upload" accept="image/gif" class="hidden">
+                Upload Image
+                <input type="file" id="file-upload" accept="image/*" class="hidden">
             </label>
         </div>
         <div id="upload-status" class="text-center mb-4 hidden"></div>
@@ -31,7 +31,7 @@
     </main>
     <div id="modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden">
         <div class="bg-white p-4 rounded-lg max-w-3xl max-h-full overflow-auto">
-            <img id="modal-image" src="" alt="Full-size GIF" class="max-w-full max-h-[80vh]">
+            <img id="modal-image" src="" alt="Full-size Image" class="max-w-full max-h-[80vh]">
             <button id="close-modal" class="mt-4 bg-purple-500 text-white px-4 py-2 rounded-lg hover:bg-purple-600 transition-colors">Close</button>
         </div>
     </div>

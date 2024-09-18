@@ -1,6 +1,6 @@
 import random
 
-MOCK_GIFS = [
+MOCK_IMAGES = [
     {
         "id": "1",
         "title": "Happy Cat",
@@ -63,19 +63,19 @@ MOCK_GIFS = [
     }
 ]
 
-def add_uploaded_gif(title, gif_url):
-    new_id = str(len(MOCK_GIFS) + 1)
-    new_gif = {
+def add_uploaded_image(title, image_url):
+    new_id = str(len(MOCK_IMAGES) + 1)
+    new_image = {
         "id": new_id,
         "title": title,
         "images": {
             "fixed_height": {
-                "url": gif_url
+                "url": image_url
             },
             "original": {
-                "url": gif_url
+                "url": image_url
             }
         }
     }
-    MOCK_GIFS.append(new_gif)
-    return new_gif
+    MOCK_IMAGES.append(new_image)
+    return new_image
