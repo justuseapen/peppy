@@ -92,3 +92,6 @@ def add_tags_to_image(image_id, new_tags):
             image["tags"] = list(set(image["tags"] + new_tags))
             return image
     return None
+
+def is_duplicate_image(image_url):
+    return any(image['images']['original']['url'] == image_url for image in MOCK_IMAGES)

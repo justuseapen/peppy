@@ -142,18 +142,21 @@ document.addEventListener('DOMContentLoaded', () => {
             method: 'POST',
             body: formData
         })
-        .then(response => response.json())
-        .then(data => {
-            if (data.error) {
-                showUploadStatus(data.error, 'error');
-            } else {
-                showUploadStatus('Image uploaded successfully!', 'success');
-                displayResults([data], resultsContainer);
+        .then(response => {
+            if (!response.ok) {
+                return response.json().then(data => {
+                    throw new Error(data.error || 'An error occurred while uploading the image.');
+                });
             }
+            return response.json();
+        })
+        .then(data => {
+            showUploadStatus('Image uploaded successfully!', 'success');
+            displayResults([data], resultsContainer);
         })
         .catch(error => {
             console.error('Error:', error);
-            showUploadStatus('An error occurred while uploading the image.', 'error');
+            showUploadStatus(error.message, 'error');
         });
     };
 
