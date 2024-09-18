@@ -12,12 +12,14 @@ ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif', 'webp'}
 
 logging.basicConfig(level=logging.DEBUG)
 
+CATEGORIES = ["Funny", "Reactions", "Animals", "Memes", "Sports", "TV & Movies"]
+
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 @app.route("/")
 def index():
-    return render_template("index.html")
+    return render_template("index.html", categories=CATEGORIES)
 
 @app.route("/api/search")
 def search_images():
@@ -106,6 +108,16 @@ def trending_gifs():
     limit = int(request.args.get("limit", 10))
     trending = random.sample(MOCK_IMAGES, min(limit, len(MOCK_IMAGES)))
     return jsonify(trending)
+
+@app.route('/api/category/<category>')
+def category_gifs(category):
+    offset = int(request.args.get("offset", 0))
+    limit = int(request.args.get("limit", 20))
+    
+    filtered_images = [image for image in MOCK_IMAGES if category.lower() in [tag.lower() for tag in image["tags"]]]
+    paginated_images = filtered_images[offset:offset + limit]
+    
+    return jsonify(paginated_images)
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000, debug=True)

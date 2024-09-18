@@ -2,6 +2,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const searchInput = document.getElementById('search-input');
     const resultsContainer = document.getElementById('results');
     const trendingResultsContainer = document.getElementById('trending-results');
+    const categoryResultsContainer = document.getElementById('category-results');
     const errorMessage = document.getElementById('error-message');
     const loadingIndicator = document.getElementById('loading');
     const modal = document.getElementById('modal');
@@ -15,11 +16,17 @@ document.addEventListener('DOMContentLoaded', () => {
     const uploadStatus = document.getElementById('upload-status');
     const searchResultsSection = document.getElementById('search-results-section');
     const trendingSection = document.getElementById('trending-section');
+    const categoriesSection = document.getElementById('categories-section');
+    const refreshTrendingButton = document.getElementById('refresh-trending');
+    const toggleViewButton = document.getElementById('toggle-view');
+    const categoryButtons = document.querySelectorAll('.category-button');
 
     let currentOffset = 0;
+    let currentCategory = '';
     const limit = 20;
     let currentQuery = '';
     let currentImageId = '';
+    let currentView = 'trending';
 
     const debounce = (func, delay) => {
         let timeoutId;
@@ -35,12 +42,13 @@ document.addEventListener('DOMContentLoaded', () => {
         resultsContainer.innerHTML = '';
         if (query === '') {
             searchResultsSection.classList.add('hidden');
-            trendingSection.classList.remove('hidden');
+            showCurrentView();
             return;
         }
 
         searchResultsSection.classList.remove('hidden');
         trendingSection.classList.add('hidden');
+        categoriesSection.classList.add('hidden');
         showLoading();
         fetchImages(query);
     }, 300);
@@ -52,7 +60,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 hideLoading();
                 displayResults(data, resultsContainer);
                 updateLoadMoreButton(data.length === limit);
-                trendingSection.classList.add('hidden');
             })
             .catch(error => {
                 console.error('Error:', error);
@@ -62,14 +69,36 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     const fetchTrendingGifs = () => {
+        showLoading();
         fetch('/api/trending?limit=8')
             .then(response => response.json())
             .then(data => {
+                hideLoading();
                 displayResults(data, trendingResultsContainer);
             })
             .catch(error => {
                 console.error('Error:', error);
                 showError('An error occurred while fetching trending GIFs. Please try again.');
+                hideLoading();
+            });
+    };
+
+    const fetchCategoryGifs = (category) => {
+        showLoading();
+        currentCategory = category;
+        currentOffset = 0;
+        categoryResultsContainer.innerHTML = '';
+        fetch(`/api/category/${encodeURIComponent(category)}?offset=${currentOffset}&limit=${limit}`)
+            .then(response => response.json())
+            .then(data => {
+                hideLoading();
+                displayResults(data, categoryResultsContainer);
+                updateLoadMoreButton(data.length === limit);
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showError('An error occurred while fetching category GIFs. Please try again.');
+                hideLoading();
             });
     };
 
@@ -77,7 +106,7 @@ document.addEventListener('DOMContentLoaded', () => {
         errorMessage.classList.add('hidden');
 
         if (images.length === 0 && currentOffset === 0) {
-            showError('No images found. Try a different search term.');
+            showError('No images found. Try a different search term or category.');
             return;
         }
 
@@ -199,6 +228,16 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     };
 
+    const showCurrentView = () => {
+        if (currentView === 'trending') {
+            trendingSection.classList.remove('hidden');
+            categoriesSection.classList.add('hidden');
+        } else {
+            trendingSection.classList.add('hidden');
+            categoriesSection.classList.remove('hidden');
+        }
+    };
+
     searchInput.addEventListener('input', (e) => performSearch(e.target.value.trim()));
 
     closeModal.addEventListener('click', () => {
@@ -208,7 +247,11 @@ document.addEventListener('DOMContentLoaded', () => {
     loadMoreButton.addEventListener('click', () => {
         currentOffset += limit;
         showLoading();
-        fetchImages(currentQuery);
+        if (currentQuery) {
+            fetchImages(currentQuery);
+        } else if (currentCategory) {
+            fetchCategoryGifs(currentCategory);
+        }
     });
 
     fileUpload.addEventListener('change', (e) => {
@@ -223,6 +266,19 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     addTagButton.addEventListener('click', addTags);
+
+    refreshTrendingButton.addEventListener('click', fetchTrendingGifs);
+
+    toggleViewButton.addEventListener('click', () => {
+        currentView = currentView === 'trending' ? 'categories' : 'trending';
+        showCurrentView();
+    });
+
+    categoryButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            fetchCategoryGifs(button.textContent);
+        });
+    });
 
     // Fetch trending GIFs on page load
     fetchTrendingGifs();

@@ -22,9 +22,24 @@
             </div>
         </div>
         <div id="upload-status" class="text-center mb-4 hidden"></div>
+        <div class="mb-4">
+            <button id="toggle-view" class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-colors">Toggle View</button>
+        </div>
         <div id="trending-section" class="mb-8">
-            <h2 class="text-2xl font-bold mb-4">Trending GIFs</h2>
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-2xl font-bold">Trending GIFs</h2>
+                <button id="refresh-trending" class="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition-colors">Refresh</button>
+            </div>
             <div id="trending-results" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4"></div>
+        </div>
+        <div id="categories-section" class="mb-8 hidden">
+            <h2 class="text-2xl font-bold mb-4">Categories</h2>
+            <div id="category-buttons" class="flex flex-wrap gap-2 mb-4">
+                {% for category in categories %}
+                <button class="category-button bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-colors">{{ category }}</button>
+                {% endfor %}
+            </div>
+            <div id="category-results" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4"></div>
         </div>
         <hr class="my-8 border-gray-300">
         <div id="search-results-section" class="mb-8 hidden">
