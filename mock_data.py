@@ -72,9 +72,24 @@ MOCK_IMAGES = [
 
 IMAGE_HASHES = []
 
+def calculate_gif_hash(file_path):
+    try:
+        with Image.open(file_path) as img:
+            frames = []
+            try:
+                while True:
+                    frames.append(imagehash.average_hash(img))
+                    img.seek(img.tell() + 1)
+            except EOFError:
+                pass
+        return sum(frames) / len(frames) if frames else None
+    except Exception as e:
+        print(f"Error calculating GIF hash: {str(e)}")
+        return None
+
 def add_uploaded_image(title, file_path, tags):
     new_id = str(len(MOCK_IMAGES) + 1)
-    new_hash = imagehash.average_hash(Image.open(file_path))
+    new_hash = calculate_gif_hash(file_path) or imagehash.average_hash(Image.open(file_path))
     IMAGE_HASHES.append(new_hash)
     new_image = {
         "id": new_id,
@@ -100,5 +115,9 @@ def add_tags_to_image(image_id, new_tags):
     return None
 
 def is_duplicate_image(file_path):
-    new_hash = imagehash.average_hash(Image.open(file_path))
-    return any(abs(new_hash - existing_hash) <= 5 for existing_hash in IMAGE_HASHES)
+    try:
+        new_hash = calculate_gif_hash(file_path) or imagehash.average_hash(Image.open(file_path))
+        return any(abs(new_hash - existing_hash) <= 5 for existing_hash in IMAGE_HASHES)
+    except Exception as e:
+        print(f"Error checking for duplicate image: {str(e)}")
+        return False

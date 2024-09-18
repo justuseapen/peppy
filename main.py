@@ -55,22 +55,27 @@ def upload_image():
     if file.filename == '':
         return jsonify({'error': 'No selected file'}), 400
     if file and allowed_file(file.filename):
-        filename = secure_filename(file.filename)
-        if not os.path.exists(app.config['UPLOAD_FOLDER']):
-            os.makedirs(app.config['UPLOAD_FOLDER'])
-        file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-        
-        # Save the file temporarily to check for duplicates
-        file.save(file_path)
-        
-        if is_duplicate_image(file_path):
-            os.remove(file_path)  # Remove the temporary file
-            return jsonify({'error': 'Duplicate image. This image has already been uploaded.'}), 400
-        
-        tags = request.form.get('tags', '').split(',')
-        tags = [tag.strip() for tag in tags if tag.strip()]
-        new_image = add_uploaded_image(filename, file_path, tags)
-        return jsonify(new_image), 201
+        try:
+            filename = secure_filename(file.filename)
+            if not os.path.exists(app.config['UPLOAD_FOLDER']):
+                os.makedirs(app.config['UPLOAD_FOLDER'])
+            file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+            
+            # Save the file temporarily to check for duplicates
+            file.save(file_path)
+            
+            if is_duplicate_image(file_path):
+                os.remove(file_path)  # Remove the temporary file
+                return jsonify({'error': 'Duplicate image. This image has already been uploaded.'}), 400
+            
+            tags = request.form.get('tags', '').split(',')
+            tags = [tag.strip() for tag in tags if tag.strip()]
+            new_image = add_uploaded_image(filename, file_path, tags)
+            return jsonify(new_image), 201
+        except Exception as e:
+            if os.path.exists(file_path):
+                os.remove(file_path)  # Remove the temporary file if it exists
+            return jsonify({'error': f'An error occurred while processing the image: {str(e)}'}), 500
     return jsonify({'error': 'Invalid file type'}), 400
 
 @app.route('/api/add_tags', methods=['POST'])
