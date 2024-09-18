@@ -11,7 +11,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const closeModal = document.getElementById('close-modal');
     const loadMoreButton = document.getElementById('load-more-button');
     const fileUpload = document.getElementById('file-upload');
-    const uploadTags = document.getElementById('upload-tags');
     const uploadStatus = document.getElementById('upload-status');
 
     let currentOffset = 0;
@@ -77,9 +76,19 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const showFullSize = (image) => {
         modalImage.src = image.images.original.url;
-        modalTags.innerHTML = `<p class="font-bold">Tags:</p><p>${image.tags.join(', ')}</p>`;
+        modalImage.alt = image.title;
         currentImageId = image.id;
+        updateModalTags(image.tags);
         modal.classList.remove('hidden');
+    };
+
+    const updateModalTags = (tags) => {
+        modalTags.innerHTML = `
+            <p class="font-bold mb-2">Tags:</p>
+            <div class="flex flex-wrap">
+                ${tags.map(tag => `<span class="tag">${tag}</span>`).join('')}
+            </div>
+        `;
     };
 
     const showError = (message) => {
@@ -106,7 +115,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const uploadImage = (file) => {
         const formData = new FormData();
         formData.append('file', file);
-        formData.append('tags', uploadTags.value);
 
         fetch('/api/upload', {
             method: 'POST',
@@ -119,7 +127,6 @@ document.addEventListener('DOMContentLoaded', () => {
             } else {
                 showUploadStatus('Image uploaded successfully!', 'success');
                 displayResults([data]);
-                uploadTags.value = '';
             }
         })
         .catch(error => {
@@ -156,7 +163,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (data.error) {
                 showError(data.error);
             } else {
-                modalTags.innerHTML = `<p class="font-bold">Tags:</p><p>${data.tags.join(', ')}</p>`;
+                updateModalTags(data.tags);
                 addTagInput.value = '';
                 showUploadStatus('Tags added successfully!', 'success');
             }

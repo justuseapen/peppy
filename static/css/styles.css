@@ -20,8 +20,9 @@
 }
 
 #modal-tags {
-    max-height: 100px;
+    max-height: 150px;
     overflow-y: auto;
+    margin-bottom: 1rem;
 }
 
 #add-tag-input {
@@ -43,4 +44,10 @@
 
 #add-tag-button:hover {
     background-color: #3182ce;
+}
+
+#close-modal {
+    display: block;
+    width: 100%;
+    margin-top: 1rem;
 }
