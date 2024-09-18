@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Peppy - GIF Search</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+</head>
+<body class="bg-gray-100 min-h-screen">
+    <header class="bg-purple-600 text-white p-4">
+        <h1 class="text-3xl font-bold text-center">Peppy</h1>
+    </header>
+    <main class="container mx-auto px-4 py-8">
+        <div class="mb-8">
+            <input type="text" id="search-input" placeholder="Search for GIFs..." class="w-full p-2 rounded-lg border-2 border-purple-300 focus:outline-none focus:border-purple-500">
+            <button id="search-button" class="mt-2 bg-purple-500 text-white px-4 py-2 rounded-lg hover:bg-purple-600 transition-colors">Search</button>
+        </div>
+        <div id="results" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4"></div>
+        <div id="error-message" class="text-red-500 text-center mt-4 hidden"></div>
+    </main>
+    <div id="modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden">
+        <div class="bg-white p-4 rounded-lg max-w-3xl max-h-full overflow-auto">
+            <img id="modal-image" src="" alt="Full-size GIF" class="max-w-full max-h-[80vh]">
+            <button id="close-modal" class="mt-4 bg-purple-500 text-white px-4 py-2 rounded-lg hover:bg-purple-600 transition-colors">Close</button>
+        </div>
+    </div>
+    <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+</body>
+</html>

@@ -1,0 +1,9 @@
+/* Add any custom styles here */
+.gif-item {
+    cursor: pointer;
+    transition: transform 0.2s;
+}
+
+.gif-item:hover {
+    transform: scale(1.05);
+}
