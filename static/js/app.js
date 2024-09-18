@@ -3,6 +3,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const resultsContainer = document.getElementById('results');
     const trendingResultsContainer = document.getElementById('trending-results');
     const categoryResultsContainer = document.getElementById('category-results');
+    const untaggedResultsContainer = document.getElementById('untagged-results');
     const errorMessage = document.getElementById('error-message');
     const loadingIndicator = document.getElementById('loading');
     const modal = document.getElementById('modal');
@@ -17,6 +18,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const searchResultsSection = document.getElementById('search-results-section');
     const trendingSection = document.getElementById('trending-section');
     const categoriesSection = document.getElementById('categories-section');
+    const untaggedSection = document.getElementById('untagged-section');
     const refreshTrendingButton = document.getElementById('refresh-trending');
     const toggleViewButton = document.getElementById('toggle-view');
     const categoryButtons = document.querySelectorAll('.category-button');
@@ -49,6 +51,7 @@ document.addEventListener('DOMContentLoaded', () => {
         searchResultsSection.classList.remove('hidden');
         trendingSection.classList.add('hidden');
         categoriesSection.classList.add('hidden');
+        untaggedSection.classList.add('hidden');
         showLoading();
         fetchImages(query);
     }, 300);
@@ -99,6 +102,22 @@ document.addEventListener('DOMContentLoaded', () => {
             .catch(error => {
                 console.error('Error:', error);
                 showError('An error occurred while fetching category GIFs. Please try again.');
+                hideLoading();
+            });
+    };
+
+    const fetchUntaggedAssets = () => {
+        showLoading();
+        fetch('/api/untagged')
+            .then(response => response.json())
+            .then(data => {
+                hideLoading();
+                untaggedResultsContainer.innerHTML = '';
+                displayResults(data, untaggedResultsContainer);
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showError('An error occurred while fetching untagged assets. Please try again.');
                 hideLoading();
             });
     };
@@ -183,6 +202,7 @@ document.addEventListener('DOMContentLoaded', () => {
         .then(data => {
             showUploadStatus('Image uploaded successfully!', 'success');
             displayResults([data], resultsContainer);
+            fetchUntaggedAssets(); // Refresh untagged assets after upload
         })
         .catch(error => {
             console.error('Error:', error);
@@ -221,6 +241,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 updateModalTags(data.tags);
                 addTagInput.value = '';
                 showUploadStatus('Tags added successfully!', 'success');
+                fetchUntaggedAssets(); // Refresh untagged assets
             }
         })
         .catch(error => {
@@ -237,6 +258,7 @@ document.addEventListener('DOMContentLoaded', () => {
             trendingSection.classList.add('hidden');
             categoriesSection.classList.remove('hidden');
         }
+        untaggedSection.classList.remove('hidden');
     };
 
     searchInput.addEventListener('input', (e) => performSearch(e.target.value.trim()));
@@ -281,6 +303,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    // Fetch trending GIFs on page load
+    // Fetch trending GIFs and untagged assets on page load
     fetchTrendingGifs();
+    fetchUntaggedAssets();
 });

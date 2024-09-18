@@ -64,3 +64,14 @@ def trending_gifs() -> jsonify:
     random.shuffle(shuffled_images)
     trending = shuffled_images[:limit]
     return jsonify(trending)
+
+@search_bp.route("/api/untagged")
+def untagged_images() -> jsonify:
+    """
+    Get a list of untagged images.
+
+    Returns:
+        jsonify: A JSON response containing the untagged images.
+    """
+    untagged = [image for image in MOCK_IMAGES if not image["tags"]]
+    return jsonify(untagged)

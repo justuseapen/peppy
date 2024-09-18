@@ -68,6 +68,14 @@
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
+#untagged-section {
+    background-color: #fff0f0;
+    padding: 1rem;
+    border-radius: 0.5rem;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    margin-bottom: 2rem;
+}
+
 hr {
     border-color: #a0aec0;
     margin: 2rem 0;
