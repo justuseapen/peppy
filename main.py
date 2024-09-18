@@ -22,11 +22,11 @@ def search_images():
     offset = int(request.args.get("offset", 0))
     limit = int(request.args.get("limit", 20))
 
-    # Filter images based on the query (case-insensitive) and tags
+    # Filter images based on the query (case-insensitive)
     filtered_images = [
         image for image in MOCK_IMAGES
         if query in image["title"].lower() or
-        any(query in tag.lower() for tag in image["tags"])
+        query in image["tags"]
     ]
 
     # Paginate the results
