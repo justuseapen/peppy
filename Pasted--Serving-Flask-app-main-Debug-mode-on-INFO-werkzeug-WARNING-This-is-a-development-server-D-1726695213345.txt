@@ -1,0 +1,38 @@
+ * Serving Flask app 'main'
+ * Debug mode: on
+INFO:werkzeug:WARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://172.31.196.38:5000
+INFO:werkzeug:Press CTRL+C to quit
+INFO:werkzeug: * Restarting with stat
+ERROR:root:Error calculating GIF hash for https://media.giphy.com/media/ICOgUNjpvO0PC/giphy.gif: [Errno 2] No such file or directory: '/home/runner/PeppyGifs/https:/media.giphy.com/media/ICOgUNjpvO0PC/giphy.gif'
+WARNING:root:Failed to calculate hash for https://media.giphy.com/media/ICOgUNjpvO0PC/giphy.gif
+ERROR:root:Error calculating GIF hash for https://media.giphy.com/media/l0MYGb1LuF3fyP8NW/giphy.gif: [Errno 2] No such file or directory: '/home/runner/PeppyGifs/https:/media.giphy.com/media/l0MYGb1LuF3fyP8NW/giphy.gif'
+WARNING:root:Failed to calculate hash for https://media.giphy.com/media/l0MYGb1LuF3fyP8NW/giphy.gif
+ERROR:root:Error calculating GIF hash for https://media.giphy.com/media/8YBm95B5JNIXTWp5on/giphy.gif: [Errno 2] No such file or directory: '/home/runner/PeppyGifs/https:/media.giphy.com/media/8YBm95B5JNIXTWp5on/giphy.gif'
+WARNING:root:Failed to calculate hash for https://media.giphy.com/media/8YBm95B5JNIXTWp5on/giphy.gif
+ERROR:root:Error calculating GIF hash for https://media.giphy.com/media/l0HlGmv4WqldO9c5y/giphy.gif: [Errno 2] No such file or directory: '/home/runner/PeppyGifs/https:/media.giphy.com/media/l0HlGmv4WqldO9c5y/giphy.gif'
+WARNING:root:Failed to calculate hash for https://media.giphy.com/media/l0HlGmv4WqldO9c5y/giphy.gif
+ERROR:root:Error calculating GIF hash for https://media.giphy.com/media/6nWhy3ulBL7GSCvKw6/giphy.gif: [Errno 2] No such file or directory: '/home/runner/PeppyGifs/https:/media.giphy.com/media/6nWhy3ulBL7GSCvKw6/giphy.gif'
+WARNING:root:Failed to calculate hash for https://media.giphy.com/media/6nWhy3ulBL7GSCvKw6/giphy.gif
+DEBUG:root:Initialized IMAGE_HASHES: []
+WARNING:werkzeug: * Debugger is active!
+INFO:werkzeug: * Debugger PIN: 509-858-628
+INFO:werkzeug:172.31.196.38 - - [18/Sep/2024 21:32:13] "GET / HTTP/1.1" 200 -
+INFO:werkzeug:172.31.196.38 - - [18/Sep/2024 21:32:13] "GET /static/css/styles.css HTTP/1.1" 304 -
+INFO:werkzeug:172.31.196.38 - - [18/Sep/2024 21:32:13] "GET /static/js/app.js HTTP/1.1" 304 -
+INFO:werkzeug:172.31.196.38 - - [18/Sep/2024 21:32:14] "GET /api/trending?limit=8 HTTP/1.1" 200 -
+INFO:werkzeug:172.31.196.38 - - [18/Sep/2024 21:32:29] "GET / HTTP/1.1" 200 -
+INFO:werkzeug:172.31.196.38 - - [18/Sep/2024 21:32:29] "GET /static/css/styles.css HTTP/1.1" 304 -
+INFO:werkzeug:172.31.196.38 - - [18/Sep/2024 21:32:29] "GET /static/js/app.js HTTP/1.1" 304 -
+INFO:werkzeug:172.31.196.38 - - [18/Sep/2024 21:32:29] "GET /api/trending?limit=8 HTTP/1.1" 200 -
+DEBUG:root:Checking for duplicate image: static/uploads/pikachu.gif
+ERROR:root:Error calculating GIF hash for static/uploads/pikachu.gif: unsupported operand type(s) for +: 'ImageHash' and 'ImageHash'
+DEBUG:root:Checking for duplicate: static/uploads/pikachu.gif, hash: 0308213f1e1e1e3f
+DEBUG:root:No duplicate found: static/uploads/pikachu.gif
+DEBUG:root:is_duplicate_image result: False
+ERROR:root:Error calculating GIF hash for static/uploads/pikachu.gif: unsupported operand type(s) for +: 'ImageHash' and 'ImageHash'
+DEBUG:root:Added new hash to IMAGE_HASHES: 0308213f1e1e1e3f
+INFO:werkzeug:172.31.196.38 - - [18/Sep/2024 21:33:11] "POST /api/upload HTTP/1.1" 201 -
+INFO:werkzeug:172.31.196.38 - - [18/Sep/2024 21:33:11] "GET /static/uploads/pikachu.gif HTTP/1.1" 200 -

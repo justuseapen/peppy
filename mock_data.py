@@ -81,14 +81,12 @@ def calculate_gif_hash(file_path):
             frames = []
             try:
                 while True:
-                    frames.append(imagehash.average_hash(img))
+                    frames.append(imagehash.average_hash(img.convert('RGB')))
                     img.seek(img.tell() + 1)
             except EOFError:
                 pass
         if frames:
-            avg_hash = sum(frames, imagehash.ImageHash(0)) / len(frames)
-            logging.debug(f"Calculated hash for {file_path}: {avg_hash}")
-            return avg_hash
+            return frames[0]  # Return the hash of the first frame
         else:
             logging.warning(f"No frames found in {file_path}")
             return None
@@ -98,9 +96,12 @@ def calculate_gif_hash(file_path):
 
 def add_uploaded_image(title, file_path, tags):
     new_id = str(len(MOCK_IMAGES) + 1)
-    new_hash = calculate_gif_hash(file_path) or imagehash.average_hash(Image.open(file_path))
-    IMAGE_HASHES.append(new_hash)
-    logging.debug(f"Added new hash to IMAGE_HASHES: {new_hash}")
+    new_hash = calculate_gif_hash(file_path)
+    if new_hash is not None:
+        IMAGE_HASHES.append(new_hash)
+        logging.debug(f"Added new hash to IMAGE_HASHES: {new_hash}")
+    else:
+        logging.warning(f"Failed to calculate hash for {file_path}")
     new_image = {
         "id": new_id,
         "title": title,
@@ -126,14 +127,17 @@ def add_tags_to_image(image_id, new_tags):
 
 def is_duplicate_image(file_path):
     try:
-        new_hash = calculate_gif_hash(file_path) or imagehash.average_hash(Image.open(file_path))
+        new_hash = calculate_gif_hash(file_path)
+        if new_hash is None:
+            return False
         logging.debug(f"Checking for duplicate: {file_path}, hash: {new_hash}")
         for idx, existing_hash in enumerate(IMAGE_HASHES):
-            difference = abs(new_hash - existing_hash)
-            logging.debug(f"Comparing with IMAGE_HASHES[{idx}]: {existing_hash}, difference: {difference}")
-            if difference <= 5:
-                logging.debug(f"Duplicate found: {file_path}")
-                return True
+            if existing_hash is not None:
+                difference = abs(new_hash - existing_hash)
+                logging.debug(f"Comparing with IMAGE_HASHES[{idx}]: {existing_hash}, difference: {difference}")
+                if difference <= 5:
+                    logging.debug(f"Duplicate found: {file_path}")
+                    return True
         logging.debug(f"No duplicate found: {file_path}")
         return False
     except Exception as e:
