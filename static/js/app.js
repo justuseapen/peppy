@@ -1,6 +1,7 @@
 document.addEventListener('DOMContentLoaded', () => {
     const searchInput = document.getElementById('search-input');
     const resultsContainer = document.getElementById('results');
+    const trendingResultsContainer = document.getElementById('trending-results');
     const errorMessage = document.getElementById('error-message');
     const loadingIndicator = document.getElementById('loading');
     const modal = document.getElementById('modal');
@@ -41,7 +42,7 @@ document.addEventListener('DOMContentLoaded', () => {
             .then(response => response.json())
             .then(data => {
                 hideLoading();
-                displayResults(data);
+                displayResults(data, resultsContainer);
                 updateLoadMoreButton(data.length === limit);
             })
             .catch(error => {
@@ -51,7 +52,19 @@ document.addEventListener('DOMContentLoaded', () => {
             });
     };
 
-    const displayResults = (images) => {
+    const fetchTrendingGifs = () => {
+        fetch('/api/trending?limit=8')
+            .then(response => response.json())
+            .then(data => {
+                displayResults(data, trendingResultsContainer);
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showError('An error occurred while fetching trending GIFs. Please try again.');
+            });
+    };
+
+    const displayResults = (images, container) => {
         errorMessage.classList.add('hidden');
 
         if (images.length === 0 && currentOffset === 0) {
@@ -70,7 +83,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 </div>
             `;
             imageElement.addEventListener('click', () => showFullSize(image));
-            resultsContainer.appendChild(imageElement);
+            container.appendChild(imageElement);
         });
     };
 
@@ -126,7 +139,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 showUploadStatus(data.error, 'error');
             } else {
                 showUploadStatus('Image uploaded successfully!', 'success');
-                displayResults([data]);
+                displayResults([data], resultsContainer);
             }
         })
         .catch(error => {
@@ -198,4 +211,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     addTagButton.addEventListener('click', addTags);
+
+    // Fetch trending GIFs on page load
+    fetchTrendingGifs();
 });

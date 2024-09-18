@@ -69,5 +69,11 @@ def add_tags():
     else:
         return jsonify({'error': 'Image not found'}), 404
 
+@app.route('/api/trending')
+def trending_gifs():
+    limit = int(request.args.get("limit", 10))
+    trending = random.sample(MOCK_IMAGES, min(limit, len(MOCK_IMAGES)))
+    return jsonify(trending)
+
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000, debug=True)
