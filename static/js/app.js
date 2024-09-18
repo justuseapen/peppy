@@ -65,9 +65,9 @@ document.addEventListener('DOMContentLoaded', () => {
             .then(response => response.json())
             .then(data => {
                 hideLoading();
-                displayResults(data, resultsContainer);
-                currentOffset += data.length;
-                hasMoreResults = data.length === limit;
+                displayResults(data.images, resultsContainer);
+                currentOffset += data.images.length;
+                hasMoreResults = data.has_more;
                 isLoading = false;
             })
             .catch(error => {
@@ -84,7 +84,7 @@ document.addEventListener('DOMContentLoaded', () => {
             .then(response => response.json())
             .then(data => {
                 hideLoading();
-                trendingResultsContainer.innerHTML = ''; // Clear existing results
+                trendingResultsContainer.innerHTML = '';
                 displayResults(data, trendingResultsContainer);
             })
             .catch(error => {
@@ -204,7 +204,7 @@ document.addEventListener('DOMContentLoaded', () => {
         .then(data => {
             showUploadStatus('Image uploaded successfully!', 'success');
             displayResults([data], resultsContainer);
-            fetchUntaggedAssets(); // Refresh untagged assets after upload
+            fetchUntaggedAssets();
         })
         .catch(error => {
             console.error('Error:', error);
@@ -243,7 +243,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 updateModalTags(data.tags);
                 addTagInput.value = '';
                 showUploadStatus('Tags added successfully!', 'success');
-                fetchUntaggedAssets(); // Refresh untagged assets
+                fetchUntaggedAssets();
             }
         })
         .catch(error => {
@@ -310,7 +310,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     window.addEventListener('scroll', debounce(handleScroll, 200));
 
-    // Fetch trending GIFs and untagged assets on page load
     fetchTrendingGifs();
     fetchUntaggedAssets();
 });

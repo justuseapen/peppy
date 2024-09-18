@@ -1,5 +1,6 @@
 from typing import List, Dict, Optional
 import random
+import string
 import imagehash
 from PIL import Image
 import logging
@@ -25,16 +26,31 @@ MOCK_IMAGES: List[Dict[str, any]] = [
 
 IMAGE_HASHES: List[Optional[imagehash.ImageHash]] = []
 
+def generate_mock_images(num_images: int) -> List[Dict[str, any]]:
+    mock_images = []
+    categories = ["Funny", "Reactions", "Animals", "Memes", "Sports", "TV & Movies"]
+    for i in range(num_images):
+        title = f"Mock Image {i+1}"
+        tags = random.sample(categories, k=random.randint(1, 3))
+        image_id = ''.join(random.choices(string.ascii_lowercase + string.digits, k=10))
+        mock_images.append({
+            "id": str(i+1),
+            "title": title,
+            "tags": tags,
+            "images": {
+                "fixed_height": {
+                    "url": f"https://via.placeholder.com/200x200.gif?text={image_id}"
+                },
+                "original": {
+                    "url": f"https://via.placeholder.com/500x500.gif?text={image_id}"
+                }
+            }
+        })
+    return mock_images
+
+MOCK_IMAGES.extend(generate_mock_images(1000))
+
 def calculate_gif_hash(file_path: str) -> Optional[imagehash.ImageHash]:
-    """
-    Calculate the hash of the first frame of a GIF image.
-
-    Args:
-        file_path (str): The path to the GIF file.
-
-    Returns:
-        Optional[imagehash.ImageHash]: The hash of the first frame, or None if an error occurs.
-    """
     try:
         with Image.open(file_path) as img:
             frames = []
@@ -54,17 +70,6 @@ def calculate_gif_hash(file_path: str) -> Optional[imagehash.ImageHash]:
         return None
 
 def add_uploaded_image(title: str, file_path: str, tags: List[str]) -> Dict[str, any]:
-    """
-    Add a new uploaded image to the MOCK_IMAGES list.
-
-    Args:
-        title (str): The title of the uploaded image.
-        file_path (str): The path to the uploaded image file.
-        tags (List[str]): A list of tags associated with the image.
-
-    Returns:
-        Dict[str, any]: The newly created image object.
-    """
     new_id = str(len(MOCK_IMAGES) + 1)
     new_hash = calculate_gif_hash(file_path)
     if new_hash is not None:
@@ -89,16 +94,6 @@ def add_uploaded_image(title: str, file_path: str, tags: List[str]) -> Dict[str,
     return new_image
 
 def add_tags_to_image(image_id: str, new_tags: List[str]) -> Optional[Dict[str, any]]:
-    """
-    Add new tags to an existing image.
-
-    Args:
-        image_id (str): The ID of the image to update.
-        new_tags (List[str]): A list of new tags to add to the image.
-
-    Returns:
-        Optional[Dict[str, any]]: The updated image object, or None if the image is not found.
-    """
     for image in MOCK_IMAGES:
         if image["id"] == image_id:
             image["tags"] = list(set(image["tags"] + new_tags))
@@ -106,15 +101,6 @@ def add_tags_to_image(image_id: str, new_tags: List[str]) -> Optional[Dict[str, 
     return None
 
 def is_duplicate_image(file_path: str) -> bool:
-    """
-    Check if an uploaded image is a duplicate of an existing image.
-
-    Args:
-        file_path (str): The path to the uploaded image file.
-
-    Returns:
-        bool: True if the image is a duplicate, False otherwise.
-    """
     try:
         new_hash = calculate_gif_hash(file_path)
         if new_hash is None:
