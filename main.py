@@ -10,11 +10,17 @@ def index():
 
 @app.route("/api/search")
 def search_gifs():
-    query = request.args.get("q", "")
-    # In a real application, we would call the Giphy API here
-    # For this mock version, we'll return random GIFs from our mock data
-    results = random.sample(MOCK_GIFS, min(len(MOCK_GIFS), 20))
-    return jsonify(results)
+    query = request.args.get("q", "").lower()
+    offset = int(request.args.get("offset", 0))
+    limit = int(request.args.get("limit", 20))
+
+    # Filter GIFs based on the query (case-insensitive)
+    filtered_gifs = [gif for gif in MOCK_GIFS if query in gif["title"].lower()]
+
+    # Paginate the results
+    paginated_gifs = filtered_gifs[offset:offset + limit]
+
+    return jsonify(paginated_gifs)
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000, debug=True)

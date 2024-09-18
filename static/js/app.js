@@ -1,43 +1,54 @@
 document.addEventListener('DOMContentLoaded', () => {
     const searchInput = document.getElementById('search-input');
-    const searchButton = document.getElementById('search-button');
     const resultsContainer = document.getElementById('results');
     const errorMessage = document.getElementById('error-message');
+    const loadingIndicator = document.getElementById('loading');
     const modal = document.getElementById('modal');
     const modalImage = document.getElementById('modal-image');
     const closeModal = document.getElementById('close-modal');
+    const loadMoreButton = document.getElementById('load-more-button');
 
-    searchButton.addEventListener('click', performSearch);
-    searchInput.addEventListener('keypress', (e) => {
-        if (e.key === 'Enter') {
-            performSearch();
-        }
-    });
+    let currentOffset = 0;
+    const limit = 20;
+    let currentQuery = '';
 
-    closeModal.addEventListener('click', () => {
-        modal.classList.add('hidden');
-    });
+    const debounce = (func, delay) => {
+        let timeoutId;
+        return (...args) => {
+            clearTimeout(timeoutId);
+            timeoutId = setTimeout(() => func.apply(null, args), delay);
+        };
+    };
 
-    function performSearch() {
-        const query = searchInput.value.trim();
+    const performSearch = debounce((query) => {
+        currentQuery = query;
+        currentOffset = 0;
+        resultsContainer.innerHTML = '';
         if (query === '') return;
 
-        fetch(`/api/search?q=${encodeURIComponent(query)}`)
+        showLoading();
+        fetchGifs(query);
+    }, 300);
+
+    const fetchGifs = (query) => {
+        fetch(`/api/search?q=${encodeURIComponent(query)}&offset=${currentOffset}&limit=${limit}`)
             .then(response => response.json())
             .then(data => {
+                hideLoading();
                 displayResults(data);
+                updateLoadMoreButton(data.length === limit);
             })
             .catch(error => {
                 console.error('Error:', error);
                 showError('An error occurred while fetching GIFs. Please try again.');
+                hideLoading();
             });
-    }
+    };
 
-    function displayResults(gifs) {
-        resultsContainer.innerHTML = '';
+    const displayResults = (gifs) => {
         errorMessage.classList.add('hidden');
 
-        if (gifs.length === 0) {
+        if (gifs.length === 0 && currentOffset === 0) {
             showError('No GIFs found. Try a different search term.');
             return;
         }
@@ -51,15 +62,43 @@ document.addEventListener('DOMContentLoaded', () => {
             gifElement.addEventListener('click', () => showFullSize(gif));
             resultsContainer.appendChild(gifElement);
         });
-    }
+    };
 
-    function showFullSize(gif) {
+    const showFullSize = (gif) => {
         modalImage.src = gif.images.original.url;
         modal.classList.remove('hidden');
-    }
+    };
 
-    function showError(message) {
+    const showError = (message) => {
         errorMessage.textContent = message;
         errorMessage.classList.remove('hidden');
-    }
+    };
+
+    const showLoading = () => {
+        loadingIndicator.classList.remove('hidden');
+    };
+
+    const hideLoading = () => {
+        loadingIndicator.classList.add('hidden');
+    };
+
+    const updateLoadMoreButton = (show) => {
+        if (show) {
+            loadMoreButton.parentElement.classList.remove('hidden');
+        } else {
+            loadMoreButton.parentElement.classList.add('hidden');
+        }
+    };
+
+    searchInput.addEventListener('input', (e) => performSearch(e.target.value.trim()));
+
+    closeModal.addEventListener('click', () => {
+        modal.classList.add('hidden');
+    });
+
+    loadMoreButton.addEventListener('click', () => {
+        currentOffset += limit;
+        showLoading();
+        fetchGifs(currentQuery);
+    });
 });
