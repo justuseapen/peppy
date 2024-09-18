@@ -22,15 +22,28 @@ def search_images():
     offset = int(request.args.get("offset", 0))
     limit = int(request.args.get("limit", 20))
 
-    # Filter images based on the query (case-insensitive)
+    def calculate_relevance(image):
+        score = 0
+        if query == image["title"].lower():
+            score += 3  # Exact title match
+        elif query in image["title"].lower():
+            score += 2  # Partial title match
+        if query in image["tags"]:
+            score += 1  # Tag match
+        return score
+
+    # Filter and score images based on the query (case-insensitive)
     filtered_images = [
-        image for image in MOCK_IMAGES
-        if query in image["title"].lower() or
-        query in image["tags"]
+        (image, calculate_relevance(image))
+        for image in MOCK_IMAGES
+        if query in image["title"].lower() or query in image["tags"]
     ]
 
+    # Sort images by relevance score (descending order)
+    sorted_images = sorted(filtered_images, key=lambda x: x[1], reverse=True)
+
     # Paginate the results
-    paginated_images = filtered_images[offset:offset + limit]
+    paginated_images = [image for image, score in sorted_images[offset:offset + limit]]
 
     return jsonify(paginated_images)
 
