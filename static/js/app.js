@@ -13,6 +13,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const loadMoreButton = document.getElementById('load-more-button');
     const fileUpload = document.getElementById('file-upload');
     const uploadStatus = document.getElementById('upload-status');
+    const searchResultsSection = document.getElementById('search-results-section');
 
     let currentOffset = 0;
     const limit = 20;
@@ -31,8 +32,12 @@ document.addEventListener('DOMContentLoaded', () => {
         currentQuery = query;
         currentOffset = 0;
         resultsContainer.innerHTML = '';
-        if (query === '') return;
+        if (query === '') {
+            searchResultsSection.classList.add('hidden');
+            return;
+        }
 
+        searchResultsSection.classList.remove('hidden');
         showLoading();
         fetchImages(query);
     }, 300);
