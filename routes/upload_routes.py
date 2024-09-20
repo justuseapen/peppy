@@ -2,7 +2,7 @@ from flask import Blueprint, request, jsonify, current_app, send_file
 from werkzeug.utils import secure_filename
 import uuid
 import io
-from typing import Tuple
+from typing import Tuple, List, Dict
 from services.image_service import add_uploaded_image, is_duplicate_image, add_tags_to_image
 from replit.object_storage import Client
 

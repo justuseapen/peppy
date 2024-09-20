@@ -16,12 +16,15 @@
             <input type="text" id="search-input" placeholder="Search for images or tags..." class="w-full md:w-3/4 p-2 rounded-lg border-2 border-green-300 focus:outline-none focus:border-green-500 mb-4 md:mb-0">
             <div class="w-full md:w-1/4 flex flex-col items-center">
                 <label for="file-upload" class="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition-colors cursor-pointer mb-2">
-                    Upload Image
-                    <input type="file" id="file-upload" accept="image/*" class="hidden">
+                    Upload Images
+                    <input type="file" id="file-upload" accept="image/*" multiple class="hidden">
                 </label>
             </div>
         </div>
         <div id="upload-status" class="text-center mb-4 hidden"></div>
+        <div id="upload-progress" class="w-full bg-gray-200 rounded-full h-2.5 mb-4 hidden">
+            <div id="upload-progress-bar" class="bg-green-600 h-2.5 rounded-full" style="width: 0%"></div>
+        </div>
         <div class="mb-4">
             <button id="toggle-view" class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-colors">Toggle View</button>
         </div>

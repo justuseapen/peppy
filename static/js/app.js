@@ -21,6 +21,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const refreshTrendingButton = document.getElementById('refresh-trending');
     const toggleViewButton = document.getElementById('toggle-view');
     const categoryButtons = document.querySelectorAll('.category-button');
+    const uploadProgress = document.getElementById('upload-progress');
+    const uploadProgressBar = document.getElementById('upload-progress-bar');
 
     let currentOffset = 0;
     let currentCategory = '';
@@ -186,31 +188,55 @@ document.addEventListener('DOMContentLoaded', () => {
         loadingIndicator.classList.add('hidden');
     };
 
-    const uploadImage = (file) => {
-        const formData = new FormData();
-        formData.append('file', file);
+    const uploadImages = (files) => {
+        const totalFiles = files.length;
+        let uploadedFiles = 0;
+        let failedUploads = 0;
 
-        fetch('/api/upload', {
-            method: 'POST',
-            body: formData
-        })
-        .then(response => {
-            if (!response.ok) {
-                return response.json().then(data => {
-                    throw new Error(data.error || 'An error occurred while uploading the image.');
-                });
-            }
-            return response.json();
-        })
-        .then(data => {
-            showUploadStatus('Image uploaded successfully!', 'success');
-            displayResults([data], resultsContainer);
-            fetchUntaggedAssets();
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            showUploadStatus(error.message, 'error');
-        });
+        uploadProgress.classList.remove('hidden');
+        uploadProgressBar.style.width = '0%';
+
+        const uploadFile = (file) => {
+            const formData = new FormData();
+            formData.append('file', file);
+
+            fetch('/api/upload', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => {
+                if (!response.ok) {
+                    return response.json().then(data => {
+                        throw new Error(data.error || 'An error occurred while uploading the image.');
+                    });
+                }
+                return response.json();
+            })
+            .then(data => {
+                uploadedFiles++;
+                updateUploadProgress(uploadedFiles, totalFiles);
+                displayResults([data], resultsContainer);
+                fetchUntaggedAssets();
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                failedUploads++;
+                updateUploadProgress(uploadedFiles, totalFiles);
+            })
+            .finally(() => {
+                if (uploadedFiles + failedUploads === totalFiles) {
+                    showUploadStatus(`Uploaded ${uploadedFiles} out of ${totalFiles} files.`, uploadedFiles === totalFiles ? 'success' : 'warning');
+                    uploadProgress.classList.add('hidden');
+                }
+            });
+        };
+
+        Array.from(files).forEach(uploadFile);
+    };
+
+    const updateUploadProgress = (uploaded, total) => {
+        const progress = (uploaded / total) * 100;
+        uploadProgressBar.style.width = `${progress}%`;
     };
 
     const showUploadStatus = (message, type) => {
@@ -281,12 +307,15 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     fileUpload.addEventListener('change', (e) => {
-        const file = e.target.files[0];
-        if (file) {
-            if (['image/png', 'image/jpeg', 'image/gif', 'image/webp'].includes(file.type)) {
-                uploadImage(file);
+        const files = e.target.files;
+        if (files.length > 0) {
+            const validFiles = Array.from(files).filter(file => 
+                ['image/png', 'image/jpeg', 'image/gif', 'image/webp'].includes(file.type)
+            );
+            if (validFiles.length > 0) {
+                uploadImages(validFiles);
             } else {
-                showUploadStatus('Please upload a valid image file (PNG, JPEG, GIF, or WebP).', 'error');
+                showUploadStatus('Please upload valid image files (PNG, JPEG, GIF, or WebP).', 'error');
             }
         }
     });
