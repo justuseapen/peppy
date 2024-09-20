@@ -89,3 +89,12 @@ hr {
 #toggle-view {
     margin-bottom: 1rem;
 }
+
+/* New styles for bulk upload section */
+#bulk-upload-section {
+    background-color: #f0fff4;
+    padding: 1rem;
+    border-radius: 0.5rem;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    margin-bottom: 2rem;
+}

@@ -192,13 +192,9 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     const handleFileSelection = (files) => {
-        selectedFilesList.innerHTML = '';
+        const fileCount = files.length;
+        selectedFilesList.innerHTML = `<li>${fileCount} file(s) selected</li>`;
         selectedFiles.classList.remove('hidden');
-        Array.from(files).forEach(file => {
-            const li = document.createElement('li');
-            li.textContent = file.name;
-            selectedFilesList.appendChild(li);
-        });
     };
 
     const uploadImages = (files) => {

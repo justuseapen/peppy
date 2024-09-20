@@ -14,27 +14,76 @@
     <main class="container mx-auto px-4 py-8">
         <div class="mb-8 flex flex-col md:flex-row justify-between items-center">
             <input type="text" id="search-input" placeholder="Search for images or tags..." class="w-full md:w-3/4 p-2 rounded-lg border-2 border-green-300 focus:outline-none focus:border-green-500 mb-4 md:mb-0">
-            <div class="w-full md:w-1/4 flex flex-col items-center">
-                <label for="file-upload" class="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition-colors cursor-pointer mb-2 flex items-center">
-                    <span>Upload Images</span>
-                    <span class="ml-2 text-sm text-gray-200">Select multiple files</span>
-                    <input type="file" id="file-upload" accept="image/*" multiple class="hidden">
-                </label>
-            </div>
         </div>
-        <div id="drag-drop-area" class="border-2 border-dashed border-green-300 rounded-lg p-8 mb-4 text-center">
-            <p>Drag and drop files here or click to select files</p>
+        
+        <div id="bulk-upload-section" class="mb-8">
+            <h2 class="text-2xl font-bold mb-4">Bulk Upload</h2>
+            <p class="mb-2">Select multiple files to upload at once:</p>
+            <label for="file-upload" class="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition-colors cursor-pointer inline-block">
+                Bulk Upload Images
+            </label>
+            <input type="file" id="file-upload" accept="image/*" multiple class="hidden">
         </div>
+        
         <div id="selected-files" class="mb-4 hidden">
             <h3 class="font-bold mb-2">Selected Files:</h3>
             <ul id="selected-files-list" class="list-disc list-inside"></ul>
         </div>
+        
         <div id="upload-status" class="text-center mb-4 hidden"></div>
         <div id="upload-progress" class="w-full bg-gray-200 rounded-full h-2.5 mb-4 hidden">
             <div id="upload-progress-bar" class="bg-green-600 h-2.5 rounded-full" style="width: 0%"></div>
         </div>
-        <!-- Rest of the HTML remains the same -->
+        
+        <div id="trending-section" class="mb-8">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-2xl font-bold">Trending GIFs</h2>
+                <button id="refresh-trending" class="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition-colors">Refresh</button>
+            </div>
+            <div id="trending-results" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4"></div>
+        </div>
+        
+        <div id="categories-section" class="mb-8 hidden">
+            <h2 class="text-2xl font-bold mb-4">Categories</h2>
+            <div id="category-buttons" class="flex flex-wrap gap-2 mb-4">
+                {% for category in categories %}
+                <button class="category-button bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-colors">{{ category }}</button>
+                {% endfor %}
+            </div>
+            <div id="category-results" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4"></div>
+        </div>
+        
+        <div id="untagged-section" class="mb-8">
+            <h2 class="text-2xl font-bold mb-4">Untagged Assets</h2>
+            <div id="untagged-results" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4"></div>
+        </div>
+        
+        <hr class="my-8 border-gray-300">
+        
+        <div id="search-results-section" class="mb-8 hidden">
+            <h2 class="text-2xl font-bold mb-4">Search Results</h2>
+            <div id="results" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4"></div>
+        </div>
+        
+        <div id="loading" class="text-center mt-4 hidden">
+            <div class="inline-block animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-green-500"></div>
+        </div>
+        
+        <div id="error-message" class="text-red-500 text-center mt-4 hidden"></div>
     </main>
-    <!-- Modal and script tags remain the same -->
+    
+    <div id="modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden">
+        <div class="bg-white p-4 rounded-lg max-w-3xl max-h-full overflow-auto">
+            <img id="modal-image" src="" alt="Full-size Image" class="max-w-full max-h-[60vh]">
+            <div id="modal-tags" class="mt-4"></div>
+            <div class="mt-4">
+                <input type="text" id="add-tag-input" placeholder="Add new tags (comma-separated)" class="w-full p-2 rounded-lg border-2 border-green-300 focus:outline-none focus:border-green-500">
+                <button id="add-tag-button" class="mt-2 bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-colors">Add Tags</button>
+            </div>
+            <button id="close-modal" class="mt-4 bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition-colors">Close</button>
+        </div>
+    </div>
+    
+    <script src="{{ url_for('static', filename='js/app.js') }}"></script>
 </body>
 </html>
