@@ -23,6 +23,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const categoryButtons = document.querySelectorAll('.category-button');
     const uploadProgress = document.getElementById('upload-progress');
     const uploadProgressBar = document.getElementById('upload-progress-bar');
+    const dragDropArea = document.getElementById('drag-drop-area');
+    const selectedFiles = document.getElementById('selected-files');
+    const selectedFilesList = document.getElementById('selected-files-list');
 
     let currentOffset = 0;
     let currentCategory = '';
@@ -188,6 +191,16 @@ document.addEventListener('DOMContentLoaded', () => {
         loadingIndicator.classList.add('hidden');
     };
 
+    const handleFileSelection = (files) => {
+        selectedFilesList.innerHTML = '';
+        selectedFiles.classList.remove('hidden');
+        Array.from(files).forEach(file => {
+            const li = document.createElement('li');
+            li.textContent = file.name;
+            selectedFilesList.appendChild(li);
+        });
+    };
+
     const uploadImages = (files) => {
         const totalFiles = files.length;
         let uploadedFiles = 0;
@@ -227,6 +240,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (uploadedFiles + failedUploads === totalFiles) {
                     showUploadStatus(`Uploaded ${uploadedFiles} out of ${totalFiles} files.`, uploadedFiles === totalFiles ? 'success' : 'warning');
                     uploadProgress.classList.add('hidden');
+                    selectedFiles.classList.add('hidden');
                 }
             });
         };
@@ -309,6 +323,7 @@ document.addEventListener('DOMContentLoaded', () => {
     fileUpload.addEventListener('change', (e) => {
         const files = e.target.files;
         if (files.length > 0) {
+            handleFileSelection(files);
             const validFiles = Array.from(files).filter(file => 
                 ['image/png', 'image/jpeg', 'image/gif', 'image/webp'].includes(file.type)
             );
@@ -339,6 +354,37 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     window.addEventListener('scroll', debounce(handleScroll, 200));
+
+    dragDropArea.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        dragDropArea.classList.add('bg-green-100');
+    });
+
+    dragDropArea.addEventListener('dragleave', () => {
+        dragDropArea.classList.remove('bg-green-100');
+    });
+
+    dragDropArea.addEventListener('drop', (e) => {
+        e.preventDefault();
+        dragDropArea.classList.remove('bg-green-100');
+        const files = e.dataTransfer.files;
+        if (files.length > 0) {
+            handleFileSelection(files);
+            fileUpload.files = files;
+            const validFiles = Array.from(files).filter(file => 
+                ['image/png', 'image/jpeg', 'image/gif', 'image/webp'].includes(file.type)
+            );
+            if (validFiles.length > 0) {
+                uploadImages(validFiles);
+            } else {
+                showUploadStatus('Please upload valid image files (PNG, JPEG, GIF, or WebP).', 'error');
+            }
+        }
+    });
+
+    dragDropArea.addEventListener('click', () => {
+        fileUpload.click();
+    });
 
     fetchTrendingGifs();
     fetchUntaggedAssets();
