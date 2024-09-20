@@ -19,11 +19,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const categoriesSection = document.getElementById('categories-section');
     const untaggedSection = document.getElementById('untagged-section');
     const refreshTrendingButton = document.getElementById('refresh-trending');
-    const toggleViewButton = document.getElementById('toggle-view');
     const categoryButtons = document.querySelectorAll('.category-button');
     const uploadProgress = document.getElementById('upload-progress');
     const uploadProgressBar = document.getElementById('upload-progress-bar');
-    const dragDropArea = document.getElementById('drag-drop-area');
     const selectedFiles = document.getElementById('selected-files');
     const selectedFilesList = document.getElementById('selected-files-list');
 
@@ -32,7 +30,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const limit = 20;
     let currentQuery = '';
     let currentImageId = '';
-    let currentView = 'trending';
     let isLoading = false;
     let hasMoreResults = true;
 
@@ -290,13 +287,8 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     const showCurrentView = () => {
-        if (currentView === 'trending') {
-            trendingSection.classList.remove('hidden');
-            categoriesSection.classList.add('hidden');
-        } else {
-            trendingSection.classList.add('hidden');
-            categoriesSection.classList.remove('hidden');
-        }
+        trendingSection.classList.remove('hidden');
+        categoriesSection.classList.remove('hidden');
         untaggedSection.classList.remove('hidden');
     };
 
@@ -335,11 +327,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     refreshTrendingButton.addEventListener('click', fetchTrendingGifs);
 
-    toggleViewButton.addEventListener('click', () => {
-        currentView = currentView === 'trending' ? 'categories' : 'trending';
-        showCurrentView();
-    });
-
     categoryButtons.forEach(button => {
         button.addEventListener('click', () => {
             currentOffset = 0;
@@ -350,37 +337,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     window.addEventListener('scroll', debounce(handleScroll, 200));
-
-    dragDropArea.addEventListener('dragover', (e) => {
-        e.preventDefault();
-        dragDropArea.classList.add('bg-green-100');
-    });
-
-    dragDropArea.addEventListener('dragleave', () => {
-        dragDropArea.classList.remove('bg-green-100');
-    });
-
-    dragDropArea.addEventListener('drop', (e) => {
-        e.preventDefault();
-        dragDropArea.classList.remove('bg-green-100');
-        const files = e.dataTransfer.files;
-        if (files.length > 0) {
-            handleFileSelection(files);
-            fileUpload.files = files;
-            const validFiles = Array.from(files).filter(file => 
-                ['image/png', 'image/jpeg', 'image/gif', 'image/webp'].includes(file.type)
-            );
-            if (validFiles.length > 0) {
-                uploadImages(validFiles);
-            } else {
-                showUploadStatus('Please upload valid image files (PNG, JPEG, GIF, or WebP).', 'error');
-            }
-        }
-    });
-
-    dragDropArea.addEventListener('click', () => {
-        fileUpload.click();
-    });
 
     fetchTrendingGifs();
     fetchUntaggedAssets();

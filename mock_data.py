@@ -1,4 +1,3 @@
-import random
 import imagehash
 from PIL import Image
 import logging

@@ -4,10 +4,9 @@ import uuid
 import io
 from typing import Tuple, List, Dict
 from services.image_service import add_uploaded_image, is_duplicate_image, add_tags_to_image
-from replit.object_storage import Client
+from replit import db
 
 upload_bp = Blueprint('upload', __name__)
-client = Client()
 
 def allowed_file(filename: str) -> bool:
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in current_app.config['ALLOWED_EXTENSIONS']
@@ -24,8 +23,8 @@ def upload_image() -> Tuple[jsonify, int]:
             filename = secure_filename(file.filename)
             unique_filename = f"{uuid.uuid4()}_{filename}"
             
-            # Upload to Replit's object storage
-            client.upload_from_bytes(unique_filename, file.read())
+            # Upload to Replit's database
+            db[unique_filename] = file.read()
             file_url = f"/api/image/{unique_filename}"
             
             if is_duplicate_image(file_url):
@@ -42,7 +41,7 @@ def upload_image() -> Tuple[jsonify, int]:
 @upload_bp.route('/api/image/<filename>')
 def serve_image(filename):
     try:
-        image_data = client.download_as_bytes(filename)
+        image_data = db[filename]
         return send_file(io.BytesIO(image_data), mimetype='image/gif')
     except Exception as e:
         return jsonify({'error': f'Error retrieving image: {str(e)}'}), 404

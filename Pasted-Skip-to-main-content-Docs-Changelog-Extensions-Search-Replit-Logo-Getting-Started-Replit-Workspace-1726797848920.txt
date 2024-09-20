@@ -1,0 +1,116 @@
+Skip to main content
+Docs
+Changelog
+Extensions
+Search
+
+Replit Logo
+Getting Started
+
+Replit Workspace
+
+Teams
+
+Replit AI
+
+Cloud Services
+
+About Usage-Based Billing
+Replit Deployments
+
+Storage and Databases
+
+Object Storage
+
+Overview
+Python API Reference
+
+Client
+Error Handling Guide
+Object Representation
+TypeScript API Reference
+
+PostgreSQL
+Replit Key-Value Database
+Replit Core
+
+Legal and Security
+
+Additional Resources
+
+FAQ
+Cloud Services
+Storage and Databases
+Object Storage
+Python API Reference
+Object Storage Python SDK
+Overview
+The replit-object-storage package simplifies working with Object Storage by providing a Python client library, offering a fast and efficient way to get started with a Python application using Object Storage. While it's possible to use Object Storage via the Google Python Client for Cloud Storage or the Google Cloud Storage JSON API, the Replit client library simplifies building applications with Object Storage by eliminating the need for custom authentication logic and Bucket configuration. This documentation helps you get started with using the Object Storage Python SDK effectively.
+
+Installation
+The Object Storage Python SDK is available via the replit-object-storage package in PyPI. To install the Object Storage Python SDK, you can use the following methods:
+
+One-click Setup
+In your Workspace, navigate to the *Object Storage pane -> Commands tab to use a one-click setup to install the package directly.
+
+
+Using upm
+Use the following command to install the package:
+
+upm --lang python add replit-object-storage
+
+Using pip
+Use the following command to install the package:
+
+pip install replit-object-storage
+
+Quick Start
+Setup a Client
+To get started, create a new client instance with no parameters:
+
+from replit.object_storage import Client
+client = Client()
+
+Add an Object
+Upload an Object to Object Storage using the upload_from_text method:
+
+client.upload_from_text("file.txt", "Hello World!")
+
+Get an Object
+Retrieve the contents of an Object using the download_as_text method:
+
+contents = client.download_as_text("file.txt")
+print(contents)
+# > "Hello World!"
+
+List the Objects in the Bucket
+List all Objects in the Bucket using the list method:
+
+objects = client.list()
+print(objects)
+# > [Object(name='file.txt')]
+
+Delete an Object
+Delete an object from Object Storage using the delete method:
+
+client.delete("file.txt")
+
+< Previous: Overview
+Next: Client >
+Was this helpful?
+
+👎
+
+👍
+Last updated on Apr 29, 2024
+Overview
+Installation
+One-click Setup
+Using upm
+Using pip
+Quick Start
+Setup a Client
+Add an Object
+Get an Object
+List the Objects in the Bucket
+Delete an Object
