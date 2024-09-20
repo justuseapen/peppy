@@ -4,8 +4,12 @@ import string
 import imagehash
 from PIL import Image
 import logging
+import io
+from replit.object_storage import Client
 
 logging.basicConfig(level=logging.DEBUG)
+
+client = Client()
 
 MOCK_IMAGES: List[Dict[str, any]] = [
     {
@@ -21,7 +25,6 @@ MOCK_IMAGES: List[Dict[str, any]] = [
             }
         }
     },
-    # ... (other mock images)
 ]
 
 IMAGE_HASHES: List[Optional[imagehash.ImageHash]] = []
@@ -50,9 +53,11 @@ def generate_mock_images(num_images: int) -> List[Dict[str, any]]:
 
 MOCK_IMAGES.extend(generate_mock_images(1000))
 
-def calculate_gif_hash(file_path: str) -> Optional[imagehash.ImageHash]:
+def calculate_gif_hash(file_url: str) -> Optional[imagehash.ImageHash]:
     try:
-        with Image.open(file_path) as img:
+        filename = file_url.split('/')[-1]
+        image_data = client.download_as_bytes(filename)
+        with Image.open(io.BytesIO(image_data)) as img:
             frames = []
             try:
                 while True:
@@ -63,30 +68,30 @@ def calculate_gif_hash(file_path: str) -> Optional[imagehash.ImageHash]:
         if frames:
             return frames[0]  # Return the hash of the first frame
         else:
-            logging.warning(f"No frames found in {file_path}")
+            logging.warning(f"No frames found in {file_url}")
             return None
     except Exception as e:
-        logging.error(f"Error calculating GIF hash for {file_path}: {str(e)}")
+        logging.error(f"Error calculating GIF hash for {file_url}: {str(e)}")
         return None
 
-def add_uploaded_image(title: str, file_path: str, tags: List[str]) -> Dict[str, any]:
+def add_uploaded_image(title: str, file_url: str, tags: List[str]) -> Dict[str, any]:
     new_id = str(len(MOCK_IMAGES) + 1)
-    new_hash = calculate_gif_hash(file_path)
+    new_hash = calculate_gif_hash(file_url)
     if new_hash is not None:
         IMAGE_HASHES.append(new_hash)
         logging.debug(f"Added new hash to IMAGE_HASHES: {new_hash}")
     else:
-        logging.warning(f"Failed to calculate hash for {file_path}")
+        logging.warning(f"Failed to calculate hash for {file_url}")
     new_image = {
         "id": new_id,
         "title": title,
         "tags": tags,
         "images": {
             "fixed_height": {
-                "url": file_path
+                "url": file_url
             },
             "original": {
-                "url": file_path
+                "url": file_url
             }
         }
     }
@@ -100,20 +105,20 @@ def add_tags_to_image(image_id: str, new_tags: List[str]) -> Optional[Dict[str, 
             return image
     return None
 
-def is_duplicate_image(file_path: str) -> bool:
+def is_duplicate_image(file_url: str) -> bool:
     try:
-        new_hash = calculate_gif_hash(file_path)
+        new_hash = calculate_gif_hash(file_url)
         if new_hash is None:
             return False
-        logging.debug(f"Checking for duplicate: {file_path}, hash: {new_hash}")
+        logging.debug(f"Checking for duplicate: {file_url}, hash: {new_hash}")
         for idx, existing_hash in enumerate(IMAGE_HASHES):
             if existing_hash is not None:
                 difference = abs(new_hash - existing_hash)
                 logging.debug(f"Comparing with IMAGE_HASHES[{idx}]: {existing_hash}, difference: {difference}")
                 if difference <= 5:
-                    logging.debug(f"Duplicate found: {file_path}")
+                    logging.debug(f"Duplicate found: {file_url}")
                     return True
-        logging.debug(f"No duplicate found: {file_path}")
+        logging.debug(f"No duplicate found: {file_url}")
         return False
     except Exception as e:
         logging.error(f"Error checking for duplicate image: {str(e)}")

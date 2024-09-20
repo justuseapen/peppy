@@ -61,6 +61,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const fetchImages = (query) => {
         if (!hasMoreResults || isLoading) return;
         isLoading = true;
+        showLoading();
         fetch(`/api/search?q=${encodeURIComponent(query)}&offset=${currentOffset}&limit=${limit}`)
             .then(response => response.json())
             .then(data => {
