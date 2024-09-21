@@ -3,6 +3,7 @@ from werkzeug.utils import secure_filename
 import uuid
 import io
 import traceback
+import base64
 from typing import Tuple, List, Dict
 from services.image_service import add_uploaded_image, is_duplicate_image, add_tags_to_image
 from replit import db
@@ -26,7 +27,7 @@ def upload_image() -> Tuple[jsonify, int]:
             
             # Upload to Replit's database
             file_data = file.read()
-            db[unique_filename] = file_data
+            db[unique_filename] = base64.b64encode(file_data).decode('utf-8')
             file_url = f"/api/image/{unique_filename}"
             
             current_app.logger.debug(f"File uploaded: {unique_filename}")
@@ -50,11 +51,14 @@ def upload_image() -> Tuple[jsonify, int]:
 @upload_bp.route('/api/image/<filename>')
 def serve_image(filename):
     try:
-        image_data = db[filename]
-        return send_file(io.BytesIO(image_data), mimetype='image/gif')
+        image_data = db.get(filename)
+        if image_data is None:
+            return jsonify({'error': 'Image not found'}), 404
+        decoded_data = base64.b64decode(image_data)
+        return send_file(io.BytesIO(decoded_data), mimetype='image/gif')
     except Exception as e:
         current_app.logger.error(f"Error retrieving image {filename}: {str(e)}")
-        return jsonify({'error': f'Error retrieving image: {str(e)}'}), 404
+        return jsonify({'error': f'Error retrieving image: {str(e)}'}), 500
 
 @upload_bp.route('/api/add_tags', methods=['POST'])
 def add_tags() -> Tuple[jsonify, int]:
