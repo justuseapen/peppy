@@ -30,7 +30,7 @@ IMAGE_HASHES = []
 
 def calculate_gif_hash(file_path: str) -> Optional[imagehash.ImageHash]:
     try:
-        image_data = db.get(file_path)
+        image_data = db.get(file_path.split('/')[-1])
         if image_data is None:
             logging.warning(f"Image data not found for {file_path}")
             return None
